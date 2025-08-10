@@ -1,9 +1,8 @@
 import { api } from '@/shared/api/api';
-import axios from 'axios';
 import type { WeatherData, GeoResult, OneCallResponse, Forecast3HResponse } from '../model/types';
 
 export const getWeatherByCity = async (city: string): Promise<WeatherData> => {
-  const { data } = await api.get(`/weather?q=${city}`);
+  const { data } = await api.get(`/data/2.5/weather?q=${city}`);
   return data;
 };
 
@@ -20,8 +19,8 @@ export const geocodeCity = async (city: string): Promise<GeoResult | null> => {
   }
 
   try {
-    const { data } = await axios.get<GeoResult[]>(
-      'https://api.openweathermap.org/geo/1.0/direct',
+    const { data } = await api.get<GeoResult[]>(
+      '/geo/1.0/direct',
       {
         params: {
           q: city,
@@ -47,8 +46,8 @@ export const getCityByCoords = async (lat: number, lon: number): Promise<string 
   try {
     console.log('Reverse geocoding so\'ralmoqda:', { lat, lon })
     
-    const { data } = await axios.get<GeoResult[]>(
-      'https://api.openweathermap.org/geo/1.0/reverse',
+    const { data } = await api.get<GeoResult[]>(
+      '/geo/1.0/reverse',
       {
         params: {
           lat,
@@ -71,16 +70,17 @@ export const getCityByCoords = async (lat: number, lon: number): Promise<string 
       return null
     }
   } catch (error) {
-    if (axios.isAxiosError(error)) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as any;
       console.error('Reverse geocoding API xatoligi:', {
-        status: error.response?.status,
-        message: error.message,
-        data: error.response?.data
+        status: axiosError.response?.status,
+        message: axiosError.message,
+        data: axiosError.response?.data
       })
       
-      if (error.response?.status === 401) {
+      if (axiosError.response?.status === 401) {
         console.error('API kalit noto\'g\'ri yoki muddati tugagan')
-      } else if (error.response?.status === 429) {
+      } else if (axiosError.response?.status === 429) {
         console.error('API so\'rovlar chegarasi yetib bormoqda')
       }
     } else {
@@ -94,8 +94,8 @@ export const getDailyForecastByCoords = async (
   lat: number,
   lon: number
 ): Promise<OneCallResponse> => {
-  const { data } = await axios.get<OneCallResponse>(
-    'https://api.openweathermap.org/data/3.0/onecall',
+  const { data } = await api.get<OneCallResponse>(
+    '/data/3.0/onecall',
     {
       params: {
         lat,
@@ -111,7 +111,7 @@ export const getDailyForecastByCoords = async (
 };
 
 export const getForecast3hByCoords = async (lat: number, lon: number) => {
-  const { data } = await api.get<Forecast3HResponse>(`/forecast`, {
+  const { data } = await api.get<Forecast3HResponse>(`/data/2.5/forecast`, {
     params: { lat, lon },
   });
   return data;

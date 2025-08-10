@@ -1,3 +1,5 @@
+import { api } from '@/shared/api/api';
+
 interface City {
   id: number
   name: string
@@ -15,15 +17,16 @@ export const getCities = async (searchTerm: string): Promise<City[]> => {
   try {
     const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || 'your_api_key_here'
     
-    const response = await fetch(
-      `http://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(searchTerm)}&limit=10&appid=${API_KEY}`
-    )
+    // Use correct OpenWeatherMap geocoding endpoint
+    const response = await api.get('/geo/1.0/direct', {
+      params: {
+        q: searchTerm,
+        limit: 10,
+        appid: API_KEY
+      }
+    });
 
-    if (!response.ok) {
-      throw new Error('API response error')
-    }
-
-    const data = await response.json()
+    const data = response.data;
     
     return data.map((city: any) => ({
       id: city.id || Math.random(),
@@ -36,6 +39,7 @@ export const getCities = async (searchTerm: string): Promise<City[]> => {
   } catch (error) {
     console.error('Error fetching cities:', error)
     
+    // Fallback to local cities if API fails
     const fallbackCities: City[] = [
       { id: 1, name: 'Tashkent', country: 'UZ' },
       { id: 2, name: 'Samarkand', country: 'UZ' },
