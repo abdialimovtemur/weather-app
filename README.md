@@ -311,15 +311,3 @@ The app uses the following OpenWeatherMap API endpoints:
 - `/data/3.0/onecall` - Detailed forecast
 
 ---
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📞 Support
-
-If you have any questions or need help, please open an issue in the repository.
